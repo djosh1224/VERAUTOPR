@@ -1,0 +1,8 @@
+issues:
+  trackerName: JIRA
+  trackerUrl: https://us-jira.mcd.com/browse/
+  regexp: (.+-[0-9]+)\s-\s(.+)
+  keyGroupIndex: 1
+  summaryGroupIndex: 2
+  aggregate: true
+  aggregationStatus: RELEASE

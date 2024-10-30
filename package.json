@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@datorama/akita-ng-router-store": "^7.0.0",
+    "@datorama/akita-ngdevtools": "^7.0.0"
+  }
+}
