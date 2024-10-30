@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rtm-topology-api.fullname" . }}
+  labels:
+    {{- include "rtm-topology-api.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "rtm-topology-api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- include "rtm-topology-api.customMetric" . | nindent 8 }}
+      labels:
+        {{- include "rtm-topology-api.selectorLabels" . | nindent 8 }}
+        {{- include "rtm-topology-api.newRelicLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      imagePullSecrets:
+        - name: myregistrykey
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel }}
+            - name: PORT
+              value: {{ .Values.port | quote }}
+            - name: NEW_RELIC_LICENSE_KEY
+              value: {{ .Values.newRelic.licensekey | quote }}
+            - name: NEW_RELIC_APP_NAME
+              value: {{ .Values.newRelic.appname | quote }}
+            - name: NEW_RELIC_API_KEY
+              value: {{ include "rtm-topology-api.nrapikey" . }}
+            - name: ASPNETCORE_ENVIRONMENT
+              value: {{ .Values.rtmEnvironment }}
+            - name: RTM_ENVIRONMENT
+              value: {{ .Values.rtmEnvironment }}
+            - name: HierarchyEndpoint
+              valueFrom: 
+                configMapKeyRef:
+                  name: rtm-configmap
+                  key: HierarchyEndpoint
+                  optional: true
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: {{ .Values.health.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 90
+            periodSeconds: 3
+            timeoutSeconds: 2
+            failureThreshold: 60
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

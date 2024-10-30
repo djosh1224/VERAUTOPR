@@ -1,0 +1,19 @@
+categories:
+  - backendService
+questions:
+  - variable: backendService.image.tag
+    default: "1.0.0-rtm-topology-api.22.3.5b2a856810c4b3ae4b215971397834b515794c60"
+    description: "The version of rtm-topology-api to run based on sha, eg. 5b2a856810c4b3ae4b215971397834b515794c60"
+    label: "The version of rtm-topology-api to run based on sha, eg. 5b2a856810c4b3ae4b215971397834b515794c60"
+    type: string
+    required: true
+  - variable: backendService.replicaCount
+    default: 2
+    description: "Number of replicas to run"
+    label: "Replica Count"
+    type: int
+  - variable: backendService.logLevel
+    default: info
+    description: "Log level for service"
+    label: "Log Level"
+    type: string
